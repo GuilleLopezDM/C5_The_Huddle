@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logging Distribuido — Guía de Estudio</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3d;
+    --accent: #7c6af7;
+    --accent2: #3ecfb0;
+    --accent3: #f76a6a;
+    --accent4: #f7a94a;
+    --text: #e8e8f0;
+    --muted: #7070a0;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.7;
+  }
+
+  /* HEADER */
+  .hero {
+    padding: 80px 40px 60px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(124,106,247,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(62,207,176,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub {
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 600px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .badges {
+    display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap;
+  }
+  .badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+  .badge-purple { color: var(--accent); border-color: var(--accent); background: rgba(124,106,247,0.08); }
+  .badge-teal { color: var(--accent2); border-color: var(--accent2); background: rgba(62,207,176,0.08); }
+  .badge-red { color: var(--accent3); border-color: var(--accent3); background: rgba(247,106,106,0.08); }
+  .badge-amber { color: var(--accent4); border-color: var(--accent4); background: rgba(247,169,74,0.08); }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex; gap: 0; overflow-x: auto;
+  }
+  nav a {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 16px 20px;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  nav a:hover { color: var(--text); }
+  nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* LAYOUT */
+  main { max-width: 1100px; margin: 0 auto; padding: 60px 40px; }
+
+  section { margin-bottom: 80px; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 36px;
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(124,106,247,0.1);
+    border: 1px solid rgba(124,106,247,0.3);
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.1em;
+  }
+  .section-num.teal { color: var(--accent2); background: rgba(62,207,176,0.1); border-color: rgba(62,207,176,0.3); }
+  .section-num.red { color: var(--accent3); background: rgba(247,106,106,0.1); border-color: rgba(247,106,106,0.3); }
+  .section-num.amber { color: var(--accent4); background: rgba(247,169,74,0.1); border-color: rgba(247,169,74,0.3); }
+  h2 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* CARDS */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-family: var(--mono);
+  }
+  .card-icon {
+    font-size: 22px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  /* CONCEPT BLOCKS */
+  .concept {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  .concept h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .concept p {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    line-height: 1.8;
+    font-family: var(--mono);
+  }
+  .concept ul {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .concept ul li {
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--muted);
+    padding-left: 20px;
+    position: relative;
+  }
+  .concept ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+
+  /* CODE */
+  pre {
+    background: #0d0d14;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 16px 0;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cm { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+  .const { color: var(--accent4); }
+
+  /* QUESTIONS */
+  .q-grid { display: flex; flex-direction: column; gap: 0; }
+  .q-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .q-item:hover { background: var(--surface); }
+  .q-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    min-width: 32px;
+    padding-top: 2px;
+  }
+  .q-text { font-size: 14px; color: var(--text); flex: 1; }
+  .q-answer {
+    display: none;
+    font-size: 13px;
+    color: var(--muted);
+    font-family: var(--mono);
+    line-height: 1.7;
+    margin-top: 10px;
+    padding: 14px 16px;
+    background: var(--surface2);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+  }
+  .q-item.open .q-answer { display: block; }
+  .q-difficulty {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    height: fit-content;
+    margin-top: 3px;
+    white-space: nowrap;
+  }
+  .easy { background: rgba(62,207,176,0.12); color: var(--accent2); }
+  .medium { background: rgba(247,169,74,0.12); color: var(--accent4); }
+  .hard { background: rgba(247,106,106,0.12); color: var(--accent3); }
+
+  .q-category {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 24px 0 10px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  /* SKILLS TABLE */
+  .skills-table { width: 100%; border-collapse: collapse; }
+  .skills-table th {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .skills-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(42,42,61,0.5);
+    font-size: 13px;
+    font-family: var(--mono);
+  }
+  .skills-table tr:hover td { background: var(--surface); }
+  .skill-name { color: var(--text); font-weight: 700; }
+  .skill-desc { color: var(--muted); }
+  .stars { color: var(--accent4); letter-spacing: 2px; }
+
+  /* ARCHITECTURE */
+  .arch-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .arch-node {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .arch-line {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+  }
+  .arch-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 2px solid;
+  }
+  .arch-connector {
+    width: 2px;
+    flex: 1;
+    min-height: 24px;
+    background: var(--border);
+  }
+  .arch-content {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 8px;
+    flex: 1;
+  }
+  .arch-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .arch-content p { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 10px; }
+  .check-item {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+  }
+  .check-box {
+    width: 18px; height: 18px;
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    transition: background 0.15s;
+  }
+  .check-box.checked { background: var(--accent); }
+  .check-label { font-size: 13px; font-family: var(--mono); color: var(--muted); }
+  .check-label strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* TIP */
+  .tip {
+    background: rgba(124,106,247,0.07);
+    border: 1px solid rgba(124,106,247,0.25);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 13px;
+    font-family: var(--mono);
+    color: var(--muted);
+    margin: 20px 0;
+  }
+  .tip strong { color: var(--accent); }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+    margin-bottom: 36px;
+    opacity: 0.3;
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap { background: var(--border); border-radius: 4px; height: 4px; flex: 1; }
+  .progress-fill { height: 4px; border-radius: 4px; }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">// challenge_5.md — guía completa de estudio</div>
+  <h1>Sistema de Logging<br><span>Distribuido</span></h1>
+  <p class="hero-sub">Todo lo que necesitás saber para la evaluación de 1hr: conceptos, código, 100 preguntas y más.</p>
+  <div class="badges">
+    <span class="badge badge-purple">Etapa 1: Conceptos</span>
+    <span class="badge badge-teal">Etapa 2: Code review</span>
+    <span class="badge badge-red">Etapa 3: Live coding</span>
+    <span class="badge badge-amber">1 hora total</span>
+  </div>
+</div>
+
+<nav>
+  <a href="#conceptos" class="active">Conceptos</a>
+  <a href="#arquitectura">Arquitectura</a>
+  <a href="#habilidades">Habilidades</a>
+  <a href="#codigo">Código clave</a>
+  <a href="#preguntas">100 preguntas</a>
+  <a href="#checklist">Checklist</a>
+</nav>
+
+<main>
+
+<!-- ===== SECCIÓN 1: CONCEPTOS ===== -->
+<section id="conceptos">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2>Conceptos fundamentales</h2>
+  </div>
+  <div class="divider"></div>
+
+  <div class="concept">
+    <h3>¿Qué es un sistema de logging distribuido?</h3>
+    <p>Es una infraestructura que recolecta, centraliza y almacena registros (logs) generados por múltiples servicios que corren de forma independiente. En vez de que cada servicio guarde sus logs localmente, todos los envían a un servidor central que los unifica.</p>
+    <ul>
+      <li>Múltiples servicios generan eventos → los envían por red a un servidor central</li>
+      <li>El servidor valida, procesa y persiste cada log en una base de datos</li>
+      <li>Los logs son consultables con filtros: por fecha, por servicio, por severidad</li>
+      <li>La autenticación garantiza que solo servicios autorizados puedan escribir logs</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h3>¿Por qué es importante?</h3>
+    <p>En sistemas con múltiples servicios, rastrear un error sin logs centralizados es como buscar una aguja en 5 pajares distintos, en formatos distintos, sin saber en qué pajar empezar.</p>
+    <ul>
+      <li>Observabilidad: sabés qué pasó, cuándo, y en qué servicio</li>
+      <li>Debugging: podés correlacionar eventos de múltiples servicios en el tiempo</li>
+      <li>Auditoría: registro histórico de operaciones para compliance</li>
+      <li>Alertas: podés detectar patrones (muchos ERROR seguidos = algo está mal)</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h3>Anatomía de un log</h3>
+    <p>Cada registro debe tener campos estándar para que sea útil y consultable:</p>
+    <pre><span class="cm">// Estructura de un log en este sistema</span>
+{
+  <span class="str">"timestamp"</span>: <span class="str">"2025-04-30T08:23:15.432Z"</span>,   <span class="cm">// cuándo pasó (ISO 8601)</span>
+  <span class="str">"service"</span>:   <span class="str">"payment-service"</span>,            <span class="cm">// quién lo generó</span>
+  <span class="str">"severity"</span>:  <span class="str">"ERROR"</span>,                        <span class="cm">// qué tan grave es</span>
+  <span class="str">"message"</span>:   <span class="str">"Timeout al conectar con DB"</span>   <span class="cm">// qué pasó</span>
+}
+
+<span class="cm">// El servidor agrega received_at (cuándo llegó al servidor)</span>
+<span class="cm">// Útil cuando el reloj del cliente puede estar desincronizado</span></pre>
+
+    <ul>
+      <li><strong style="color:#e8e8f0">timestamp:</strong> cuándo ocurrió el evento en el servicio de origen</li>
+      <li><strong style="color:#e8e8f0">service:</strong> identificador del servicio que generó el log</li>
+      <li><strong style="color:#e8e8f0">severity:</strong> DEBUG &lt; INFO &lt; WARN &lt; ERROR &lt; FATAL</li>
+      <li><strong style="color:#e8e8f0">message:</strong> descripción legible del evento</li>
+      <li><strong style="color:#e8e8f0">received_at:</strong> timestamp del servidor al recibir (lo agrega el servidor)</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h3>Niveles de severidad</h3>
+    <p>La jerarquía determina qué tan urgente es el evento. En producción generalmente se filtran los DEBUG para reducir ruido.</p>
+    <ul>
+      <li><strong style="color:#7070a0">DEBUG:</strong> información muy detallada, solo útil durante desarrollo</li>
+      <li><strong style="color:#3ecfb0">INFO:</strong> operaciones normales del sistema (usuario logueado, pedido creado)</li>
+      <li><strong style="color:#f7a94a">WARN:</strong> algo inusual pero el sistema sigue funcionando</li>
+      <li><strong style="color:#f76a6a">ERROR:</strong> algo falló pero el servicio sigue vivo</li>
+      <li><strong style="color:#c792ea">FATAL:</strong> error crítico, el servicio probablemente se va a caer</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h3>Token authentication</h3>
+    <p>Cada servicio tiene un token único que lo identifica. El servidor verifica ese token antes de aceptar cualquier log. Si no es válido, rechaza la request con 401.</p>
+    <pre><span class="cm">// El cliente envía el token en el header</span>
+<span class="const">Authorization</span>: Token <span class="str">svc_payment_abc123xyz</span>
+
+<span class="cm">// El servidor lo extrae y valida contra su lista</span>
+<span class="kw">const</span> <span class="const">VALID_TOKENS</span> = {
+  <span class="str">'svc_payment_abc123xyz'</span>: <span class="str">'payment-service'</span>,
+  <span class="str">'svc_auth_def456uvw'</span>:    <span class="str">'auth-service'</span>,
+  <span class="str">'svc_notif_ghi789rst'</span>:   <span class="str">'notification-service'</span>
+}
+
+<span class="cm">// Si no está en el mapa → 401 Unauthorized</span></pre>
+  </div>
+
+  <div class="concept">
+    <h3>Filtros por fecha y la diferencia timestamp vs received_at</h3>
+    <p>El sistema maneja dos tipos de timestamp distintos, y es importante entender por qué:</p>
+    <ul>
+      <li><strong style="color:#e8e8f0">timestamp:</strong> cuándo pasó el evento en el servicio (reloj del cliente)</li>
+      <li><strong style="color:#e8e8f0">received_at:</strong> cuándo llegó el log al servidor central (reloj del servidor)</li>
+      <li>Un servicio puede estar en otra zona horaria o tener el reloj desincronizado</li>
+      <li>Filtrar por received_at es más confiable para saber "qué llegó hoy"</li>
+      <li>Filtrar por timestamp es mejor para "qué pasó entre las 14:00 y 15:00"</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== SECCIÓN 2: ARQUITECTURA ===== -->
+<section id="arquitectura">
+  <div class="section-header">
+    <span class="section-num teal">02</span>
+    <h2>Arquitectura del sistema</h2>
+  </div>
+  <div class="divider"></div>
+
+  <div class="arch-flow">
+
+    <div class="arch-node">
+      <div class="arch-line">
+        <div class="arch-dot" style="border-color: #7c6af7; background: rgba(124,106,247,0.2)"></div>
+        <div class="arch-connector"></div>
+      </div>
+      <div class="arch-content" style="border-color: rgba(124,106,247,0.3)">
+        <h4 style="color: #7c6af7">Servicios simulados (clientes)</h4>
+        <p>Generan logs falsos con datos realistas. Cada uno tiene un token único. Envían POST /logs con JSON. Pueden enviar 1 o N logs a la vez. Manejan errores de red.</p>
+      </div>
+    </div>
+
+    <div class="arch-node">
+      <div class="arch-line">
+        <div class="arch-dot" style="border-color: #f7a94a; background: rgba(247,169,74,0.2)"></div>
+        <div class="arch-connector"></div>
+      </div>
+      <div class="arch-content" style="border-color: rgba(247,169,74,0.3)">
+        <h4 style="color: #f7a94a">Middleware de autenticación</h4>
+        <p>Lee el header Authorization. Valida el token contra la lista. Si es inválido → 401 {"error": "Quién sos, bro?"}. Si es válido → pasa al siguiente handler.</p>
+      </div>
+    </div>
+
+    <div class="arch-node">
+      <div class="arch-line">
+        <div class="arch-dot" style="border-color: #3ecfb0; background: rgba(62,207,176,0.2)"></div>
+        <div class="arch-connector"></div>
+      </div>
+      <div class="arch-content" style="border-color: rgba(62,207,176,0.3)">
+        <h4 style="color: #3ecfb0">POST /logs — recibir logs</h4>
+        <p>Valida que el body tenga timestamp, service, severity, message. Agrega received_at = now(). Inserta en la base de datos. Soporta array de logs (batch). Responde 201 Created.</p>
+      </div>
+    </div>
+
+    <div class="arch-node">
+      <div class="arch-line">
+        <div class="arch-dot" style="border-color: #3ecfb0; background: rgba(62,207,176,0.2)"></div>
+        <div class="arch-connector"></div>
+      </div>
+      <div class="arch-content" style="border-color: rgba(62,207,176,0.3)">
+        <h4 style="color: #3ecfb0">GET /logs — consultar logs</h4>
+        <p>Lee query params opcionales: timestamp_start, timestamp_end, received_at_start, received_at_end. Construye el query SQL dinámicamente según los filtros presentes. Devuelve array ordenado por timestamp DESC.</p>
+      </div>
+    </div>
+
+    <div class="arch-node">
+      <div class="arch-line">
+        <div class="arch-dot" style="border-color: #f76a6a; background: rgba(247,106,106,0.2)"></div>
+      </div>
+      <div class="arch-content" style="border-color: rgba(247,106,106,0.3)">
+        <h4 style="color: #f76a6a">Base de datos</h4>
+        <p>Tabla logs: id (PK autoincrement), timestamp TEXT, service TEXT, severity TEXT, message TEXT, received_at TEXT. Índice en timestamp y received_at para queries eficientes.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ===== SECCIÓN 3: HABILIDADES ===== -->
+<section id="habilidades">
+  <div class="section-header">
+    <span class="section-num red">03</span>
+    <h2>Habilidades que necesitás dominar</h2>
+  </div>
+  <div class="divider"></div>
+
+  <table class="skills-table">
+    <thead>
+      <tr>
+        <th>Habilidad</th>
+        <th>Por qué es importante</th>
+        <th>Prioridad</th>
+        <th>Etapa</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="skill-name">HTTP & REST básico</td>
+        <td class="skill-desc">POST, GET, headers, status codes, body JSON</td>
+        <td class="stars">★★★★★</td>
+        <td><span class="badge badge-purple" style="font-size:10px; padding:2px 8px">1+2+3</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Middleware de auth</td>
+        <td class="skill-desc">Extraer y validar token del header Authorization</td>
+        <td class="stars">★★★★★</td>
+        <td><span class="badge badge-teal" style="font-size:10px; padding:2px 8px">2+3</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">SQL básico</td>
+        <td class="skill-desc">CREATE TABLE, INSERT, SELECT con WHERE y filtros de fecha</td>
+        <td class="stars">★★★★★</td>
+        <td><span class="badge badge-teal" style="font-size:10px; padding:2px 8px">2+3</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Query SQL dinámico</td>
+        <td class="skill-desc">Construir WHERE condicionalmente según query params presentes</td>
+        <td class="stars">★★★★★</td>
+        <td><span class="badge badge-red" style="font-size:10px; padding:2px 8px">3</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Manejo de fechas ISO 8601</td>
+        <td class="skill-desc">new Date().toISOString(), comparaciones de fechas en SQL</td>
+        <td class="stars">★★★★☆</td>
+        <td><span class="badge badge-teal" style="font-size:10px; padding:2px 8px">2+3</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Validación de body</td>
+        <td class="skill-desc">Verificar campos requeridos, responder 400 si faltan</td>
+        <td class="stars">★★★★☆</td>
+        <td><span class="badge badge-teal" style="font-size:10px; padding:2px 8px">2+3</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Batch insert</td>
+        <td class="skill-desc">Insertar múltiples logs en una sola operación SQL</td>
+        <td class="stars">★★★★☆</td>
+        <td><span class="badge badge-teal" style="font-size:10px; padding:2px 8px">2+3</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Try/catch & error handling</td>
+        <td class="skill-desc">Nunca dejar que un error no manejado tire el servidor</td>
+        <td class="stars">★★★★☆</td>
+        <td><span class="badge badge-teal" style="font-size:10px; padding:2px 8px">2+3</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Conceptos de arquitectura</td>
+        <td class="skill-desc">Cliente-servidor, SoC, logging centralizado vs local</td>
+        <td class="stars">★★★★☆</td>
+        <td><span class="badge badge-purple" style="font-size:10px; padding:2px 8px">1</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Curl / Postman</td>
+        <td class="skill-desc">Testear endpoints manualmente en vivo</td>
+        <td class="stars">★★★☆☆</td>
+        <td><span class="badge badge-red" style="font-size:10px; padding:2px 8px">3</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Índices en DB</td>
+        <td class="skill-desc">Por qué indexar timestamp para mejorar queries de filtro</td>
+        <td class="stars">★★★☆☆</td>
+        <td><span class="badge badge-purple" style="font-size:10px; padding:2px 8px">1</span></td>
+      </tr>
+      <tr>
+        <td class="skill-name">Variables de entorno</td>
+        <td class="skill-desc">Guardar tokens en .env, no en el código</td>
+        <td class="stars">★★★☆☆</td>
+        <td><span class="badge badge-teal" style="font-size:10px; padding:2px 8px">2</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ===== SECCIÓN 4: CÓDIGO CLAVE ===== -->
+<section id="codigo">
+  <div class="section-header">
+    <span class="section-num amber">04</span>
+    <h2>Código clave que tenés que conocer</h2>
+  </div>
+  <div class="divider"></div>
+
+  <div class="concept">
+    <h3>Servidor — estructura principal (Express + SQLite)</h3>
+    <pre><span class="kw">const</span> express = <span class="fn">require</span>(<span class="str">'express'</span>);
+<span class="kw">const</span> Database = <span class="fn">require</span>(<span class="str">'better-sqlite3'</span>);
+
+<span class="kw">const</span> app = <span class="fn">express</span>();
+app.<span class="fn">use</span>(express.<span class="fn">json</span>());
+
+<span class="kw">const</span> db = <span class="kw">new</span> <span class="fn">Database</span>(<span class="str">'logs.db'</span>);
+
+<span class="cm">// Crear tabla si no existe</span>
+db.<span class="fn">exec</span>(<span class="str">`
+  CREATE TABLE IF NOT EXISTS logs (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp   TEXT NOT NULL,
+    service     TEXT NOT NULL,
+    severity    TEXT NOT NULL,
+    message     TEXT NOT NULL,
+    received_at TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_timestamp   ON logs(timestamp);
+  CREATE INDEX IF NOT EXISTS idx_received_at ON logs(received_at);
+`</span>);
+
+<span class="cm">// Tokens válidos por servicio</span>
+<span class="kw">const</span> <span class="const">VALID_TOKENS</span> = {
+  <span class="str">'token_payment_001'</span>: <span class="str">'payment-service'</span>,
+  <span class="str">'token_auth_002'</span>:    <span class="str">'auth-service'</span>,
+  <span class="str">'token_notif_003'</span>:   <span class="str">'notification-service'</span>
+};</pre>
+  </div>
+
+  <div class="concept">
+    <h3>Middleware de autenticación</h3>
+    <pre><span class="cm">// Este middleware se ejecuta ANTES de los handlers de rutas</span>
+<span class="kw">function</span> <span class="fn">authMiddleware</span>(req, res, next) {
+  <span class="kw">const</span> authHeader = req.headers[<span class="str">'authorization'</span>];
+
+  <span class="cm">// Verificar que el header exista y tenga el formato correcto</span>
+  <span class="kw">if</span> (!authHeader || !authHeader.<span class="fn">startsWith</span>(<span class="str">'Token '</span>)) {
+    <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">401</span>).<span class="fn">json</span>({ error: <span class="str">'Quién sos, bro?'</span> });
+  }
+
+  <span class="kw">const</span> token = authHeader.<span class="fn">slice</span>(<span class="num">6</span>); <span class="cm">// quitar "Token " del inicio</span>
+
+  <span class="kw">if</span> (!<span class="const">VALID_TOKENS</span>[token]) {
+    <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">401</span>).<span class="fn">json</span>({ error: <span class="str">'Quién sos, bro?'</span> });
+  }
+
+  <span class="cm">// Guardamos el nombre del servicio para usarlo después si queremos</span>
+  req.serviceName = <span class="const">VALID_TOKENS</span>[token];
+  <span class="fn">next</span>(); <span class="cm">// todo bien, seguir al handler</span>
+}</pre>
+  </div>
+
+  <div class="concept">
+    <h3>POST /logs — recibir y guardar logs</h3>
+    <pre>app.<span class="fn">post</span>(<span class="str">'/logs'</span>, authMiddleware, (req, res) => {
+  <span class="kw">try</span> {
+    <span class="cm">// Soportar tanto un solo log como un array de logs</span>
+    <span class="kw">const</span> logs = Array.<span class="fn">isArray</span>(req.body) ? req.body : [req.body];
+    <span class="kw">const</span> received_at = <span class="kw">new</span> <span class="fn">Date</span>().<span class="fn">toISOString</span>();
+
+    <span class="cm">// Validar cada log antes de insertar cualquiera</span>
+    <span class="kw">const</span> required = [<span class="str">'timestamp'</span>, <span class="str">'service'</span>, <span class="str">'severity'</span>, <span class="str">'message'</span>];
+    <span class="kw">for</span> (<span class="kw">const</span> log <span class="kw">of</span> logs) {
+      <span class="kw">for</span> (<span class="kw">const</span> field <span class="kw">of</span> required) {
+        <span class="kw">if</span> (!log[field]) {
+          <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">400</span>).<span class="fn">json</span>({ error: <span class="str">`Campo requerido: ${field}`</span> });
+        }
+      }
+    }
+
+    <span class="cm">// Insertar todos en una transacción (más rápido y atómico)</span>
+    <span class="kw">const</span> insert = db.<span class="fn">prepare</span>(<span class="str">`
+      INSERT INTO logs (timestamp, service, severity, message, received_at)
+      VALUES (@timestamp, @service, @severity, @message, @received_at)
+    `</span>);
+
+    <span class="kw">const</span> insertMany = db.<span class="fn">transaction</span>((items) => {
+      <span class="kw">for</span> (<span class="kw">const</span> log <span class="kw">of</span> items) {
+        insert.<span class="fn">run</span>({ ...log, received_at });
+      }
+    });
+
+    <span class="fn">insertMany</span>(logs);
+    res.<span class="fn">status</span>(<span class="num">201</span>).<span class="fn">json</span>({ message: <span class="str">`${logs.length} log(s) guardado(s)`</span> });
+
+  } <span class="kw">catch</span> (err) {
+    res.<span class="fn">status</span>(<span class="num">500</span>).<span class="fn">json</span>({ error: <span class="str">'Error interno del servidor'</span> });
+  }
+});</pre>
+  </div>
+
+  <div class="concept">
+    <h3>GET /logs — consultar con filtros dinámicos</h3>
+    <pre>app.<span class="fn">get</span>(<span class="str">'/logs'</span>, authMiddleware, (req, res) => {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> { timestamp_start, timestamp_end,
+            received_at_start, received_at_end } = req.query;
+
+    <span class="cm">// Construir el WHERE dinámicamente</span>
+    <span class="kw">const</span> conditions = [];
+    <span class="kw">const</span> params = {};
+
+    <span class="kw">if</span> (timestamp_start) {
+      conditions.<span class="fn">push</span>(<span class="str">'timestamp >= @timestamp_start'</span>);
+      params.timestamp_start = timestamp_start;
+    }
+    <span class="kw">if</span> (timestamp_end) {
+      conditions.<span class="fn">push</span>(<span class="str">'timestamp <= @timestamp_end'</span>);
+      params.timestamp_end = timestamp_end;
+    }
+    <span class="kw">if</span> (received_at_start) {
+      conditions.<span class="fn">push</span>(<span class="str">'received_at >= @received_at_start'</span>);
+      params.received_at_start = received_at_start;
+    }
+    <span class="kw">if</span> (received_at_end) {
+      conditions.<span class="fn">push</span>(<span class="str">'received_at <= @received_at_end'</span>);
+      params.received_at_end = received_at_end;
+    }
+
+    <span class="kw">const</span> whereClause = conditions.length > <span class="num">0</span>
+      ? <span class="str">`WHERE ${conditions.join(' AND ')}`</span>
+      : <span class="str">''</span>;
+
+    <span class="kw">const</span> query = db.<span class="fn">prepare</span>(<span class="str">`
+      SELECT * FROM logs ${whereClause}
+      ORDER BY timestamp DESC
+    `</span>);
+
+    <span class="kw">const</span> logs = query.<span class="fn">all</span>(params);
+    res.<span class="fn">json</span>(logs);
+
+  } <span class="kw">catch</span> (err) {
+    res.<span class="fn">status</span>(<span class="num">500</span>).<span class="fn">json</span>({ error: <span class="str">'Error interno del servidor'</span> });
+  }
+});</pre>
+  </div>
+
+  <div class="concept">
+    <h3>Cliente simulado</h3>
+    <pre><span class="kw">const</span> axios = <span class="fn">require</span>(<span class="str">'axios'</span>);
+
+<span class="kw">const</span> <span class="const">SERVER_URL</span> = <span class="str">'http://localhost:3000'</span>;
+<span class="kw">const</span> <span class="const">TOKEN</span> = <span class="str">'token_payment_001'</span>;
+
+<span class="kw">const</span> SEVERITIES = [<span class="str">'DEBUG'</span>, <span class="str">'INFO'</span>, <span class="str">'WARN'</span>, <span class="str">'ERROR'</span>];
+<span class="kw">const</span> MESSAGES = [
+  <span class="str">'Transacción procesada exitosamente'</span>,
+  <span class="str">'Timeout al conectar con el gateway'</span>,
+  <span class="str">'Usuario no encontrado en la DB'</span>,
+  <span class="str">'Retry #3 fallido, abortando operación'</span>
+];
+
+<span class="kw">async function</span> <span class="fn">sendLog</span>() {
+  <span class="kw">const</span> log = {
+    timestamp: <span class="kw">new</span> <span class="fn">Date</span>().<span class="fn">toISOString</span>(),
+    service:   <span class="str">'payment-service'</span>,
+    severity:  SEVERITIES[Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * SEVERITIES.length)],
+    message:   MESSAGES[Math.<span class="fn">floor</span>(Math.<span class="fn">random</span>() * MESSAGES.length)]
+  };
+
+  <span class="kw">try</span> {
+    <span class="kw">await</span> axios.<span class="fn">post</span>(<span class="str">`${SERVER_URL}/logs`</span>, log, {
+      headers: { <span class="str">'Authorization'</span>: <span class="str">`Token ${TOKEN}`</span> }
+    });
+    console.<span class="fn">log</span>(<span class="str">`[payment] Log enviado: ${log.severity} — ${log.message}`</span>);
+  } <span class="kw">catch</span> (err) {
+    console.<span class="fn">error</span>(<span class="str">'Error enviando log:'</span>, err.message);
+  }
+}
+
+<span class="cm">// Enviar un log cada 2 segundos</span>
+<span class="fn">setInterval</span>(sendLog, <span class="num">2000</span>);</pre>
+  </div>
+
+  <div class="tip">
+    <strong>Curl para testear en vivo:</strong><br><br>
+    # Enviar un log:<br>
+    curl -X POST http://localhost:3000/logs \<br>
+    &nbsp;&nbsp;-H "Authorization: Token token_payment_001" \<br>
+    &nbsp;&nbsp;-H "Content-Type: application/json" \<br>
+    &nbsp;&nbsp;-d '{"timestamp":"2025-04-30T10:00:00Z","service":"payment","severity":"ERROR","message":"Timeout"}'<br><br>
+    # Consultar con filtros:<br>
+    curl "http://localhost:3000/logs?timestamp_start=2025-04-30T00:00:00Z" \<br>
+    &nbsp;&nbsp;-H "Authorization: Token token_payment_001"
+  </div>
+</section>
+
+<!-- ===== SECCIÓN 5: 100 PREGUNTAS ===== -->
+<section id="preguntas">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2>100 preguntas que podrían hacerte</h2>
+  </div>
+  <div class="divider"></div>
+  <div class="tip"><strong>Tip:</strong> Hacé click en cada pregunta para ver la respuesta. Las preguntas están organizadas por tema y dificultad.</div>
+
+  <div class="q-grid" id="questions-container"></div>
+</section>
+
+<!-- ===== SECCIÓN 6: CHECKLIST ===== -->
+<section id="checklist">
+  <div class="section-header">
+    <span class="section-num teal">06</span>
+    <h2>Checklist de entrega</h2>
+  </div>
+  <div class="divider"></div>
+  <div class="checklist">
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>Servidor corriendo en un puerto</strong>Levantás con node server.js o npm start y no da error</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>POST /logs funciona</strong>Acepta un log individual y un array de logs. Valida campos. Retorna 201.</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>GET /logs funciona</strong>Sin filtros devuelve todos. Con filtros de fecha devuelve el subconjunto correcto.</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>Autenticación implementada</strong>Token inválido → 401. Token válido → procesa la request.</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>Base de datos con datos reales</strong>Los logs se guardan y persisten aunque reinicies el servidor.</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>3+ servicios simulados</strong>Al menos 3 scripts/clientes distintos con tokens distintos generando logs.</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>Código comentado</strong>Cada función tiene un comentario explicando su propósito y lógica clave.</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>README con instrucciones</strong>Cómo instalar dependencias, cómo correr el servidor, cómo correr los clientes.</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>Manejo de errores</strong>400 si faltan campos, 401 si el token es inválido, 500 si hay error de DB.</div>
+    </div>
+    <div class="check-item">
+      <div class="check-box" onclick="toggleCheck(this)"></div>
+      <div class="check-label"><strong>Testeo manual verificado</strong>Probaste todos los endpoints con curl o Postman antes de entregar.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Logging Challenge — Guía de estudio completa // Penguin Academy
+</footer>
+
+<script>
+const questions = [
+  // === CONCEPTOS GENERALES ===
+  { cat: 'Conceptos generales', difficulty: 'easy', q: '¿Qué es un log?', a: 'Un registro textual de un evento que ocurrió en el sistema, con información como cuándo pasó, qué servicio lo generó, qué tan grave fue y un mensaje descriptivo.' },
+  { cat: 'Conceptos generales', difficulty: 'easy', q: '¿Qué es un sistema de logging distribuido?', a: 'Es una infraestructura que centraliza los logs generados por múltiples servicios independientes en un servidor central. En lugar de que cada servicio guarde sus propios logs localmente, todos los envían a un punto central que los unifica, almacena y hace consultables.' },
+  { cat: 'Conceptos generales', difficulty: 'easy', q: '¿Por qué no alcanza con que cada servicio guarde sus propios logs?', a: 'Porque cuando algo falla en un sistema con múltiples servicios, tenés que revisar logs en muchas máquinas distintas, en formatos distintos, correlacionando eventos manualmente. Un sistema centralizado permite ver todo en un solo lugar y filtrar por tiempo, servicio o severidad.' },
+  { cat: 'Conceptos generales', difficulty: 'easy', q: '¿Cuáles son los niveles de severidad de un log y qué significa cada uno?', a: 'DEBUG (información muy detallada, solo para desarrollo), INFO (operaciones normales), WARN (algo inusual pero el sistema sigue funcionando), ERROR (algo falló pero el servicio sigue vivo), FATAL (error crítico, el servicio probablemente se cae).' },
+  { cat: 'Conceptos generales', difficulty: 'easy', q: '¿Qué campos debe tener un log en este sistema?', a: 'timestamp (cuándo ocurrió el evento en el servicio), service (qué servicio lo generó), severity (nivel de gravedad) y message (descripción del evento). El servidor agrega received_at al momento de recibirlo.' },
+  { cat: 'Conceptos generales', difficulty: 'medium', q: '¿Cuál es la diferencia entre timestamp y received_at?', a: 'timestamp es cuándo ocurrió el evento según el reloj del servicio que lo generó. received_at es cuándo llegó el log al servidor central. Son distintos porque el cliente puede estar en otra zona horaria o tener el reloj desincronizado.' },
+  { cat: 'Conceptos generales', difficulty: 'medium', q: '¿Por qué los logs son generalmente append-only (solo se agregan, nunca se modifican)?', a: 'Porque modificar un log histórico destruiría su valor como registro fiel de lo que pasó. Los logs son evidencia de eventos pasados; si se pudieran editar, perderían su confiabilidad para auditoría, debugging y análisis.' },
+  { cat: 'Conceptos generales', difficulty: 'medium', q: '¿Qué ventajas tiene un sistema de logging centralizado vs logs locales?', a: 'Visibilidad unificada de todos los servicios, correlación de eventos en el tiempo, búsqueda y filtrado centralizado, persistencia independiente de los servicios (si un servicio cae sus logs ya están guardados), y capacidad de alertar ante patrones de errores.' },
+  { cat: 'Conceptos generales', difficulty: 'hard', q: '¿Qué pasa si el servidor de logs cae y los servicios siguen generando logs?', a: 'Los logs se pierden si el cliente no implementa un mecanismo de retry o buffer local. Soluciones posibles: cola de mensajes (RabbitMQ, Kafka) que actúa como buffer, reintentos automáticos con backoff exponencial, o almacenamiento local temporal hasta que el servidor se recupere.' },
+  { cat: 'Conceptos generales', difficulty: 'hard', q: '¿Qué es observabilidad y cómo se relaciona con el logging?', a: 'Observabilidad es la capacidad de entender el estado interno de un sistema a partir de sus salidas externas. El logging es uno de los tres pilares (junto con métricas y trazas distribuidas). Los logs dan contexto de qué pasó; las métricas muestran tendencias numéricas; las trazas conectan una request a través de múltiples servicios.' },
+
+  // === HTTP & REST ===
+  { cat: 'HTTP & REST', difficulty: 'easy', q: '¿Cuál es la diferencia entre POST y GET?', a: 'POST se usa para enviar datos al servidor y crear recursos (en este sistema, para enviar logs). GET se usa para recuperar datos sin modificar nada (para consultar logs). POST tiene body con los datos; GET usa query parameters.' },
+  { cat: 'HTTP & REST', difficulty: 'easy', q: '¿Qué significa el status code 201?', a: 'Created. Indica que la request fue exitosa y se creó un nuevo recurso. Se usa en POST /logs cuando los logs se guardaron correctamente.' },
+  { cat: 'HTTP & REST', difficulty: 'easy', q: '¿Qué significa el status code 401?', a: 'Unauthorized. El cliente no está autenticado o su autenticación es inválida. En este sistema se devuelve cuando el token no existe o es incorrecto.' },
+  { cat: 'HTTP & REST', difficulty: 'easy', q: '¿Qué significa el status code 400?', a: 'Bad Request. La request del cliente tiene errores de formato o le faltan datos requeridos. En este sistema se devuelve cuando el body del log no tiene todos los campos obligatorios.' },
+  { cat: 'HTTP & REST', difficulty: 'easy', q: '¿Qué es el Content-Type header y para qué sirve?', a: 'Indica el formato del body de la request. En este sistema usamos Content-Type: application/json para decirle al servidor que el body viene en formato JSON.' },
+  { cat: 'HTTP & REST', difficulty: 'medium', q: '¿Qué son los query parameters y cómo se usan para filtrar logs?', a: 'Son pares clave=valor que van en la URL después del signo ?. Por ejemplo: GET /logs?timestamp_start=2025-04-30T00:00:00Z&severity=ERROR. El servidor los lee de req.query en Express.' },
+  { cat: 'HTTP & REST', difficulty: 'medium', q: '¿Cuál es la diferencia entre 401 y 403?', a: '401 significa "no sé quién sos" (no autenticado o token inválido). 403 significa "sé quién sos pero no tenés permiso para hacer esto" (autenticado pero no autorizado). En este sistema usamos 401 para tokens inválidos.' },
+  { cat: 'HTTP & REST', difficulty: 'medium', q: '¿Por qué usamos POST para enviar logs y no PUT o PATCH?', a: 'POST se usa para crear nuevos recursos. PUT se usa para reemplazar un recurso existente completo; PATCH para modificarlo parcialmente. Los logs siempre se crean nuevos, nunca se modifican, así que POST es el verbo correcto.' },
+  { cat: 'HTTP & REST', difficulty: 'medium', q: '¿Qué es un middleware en Express?', a: 'Una función que se ejecuta en el pipeline de una request antes de que llegue al handler final. Tiene acceso a req, res y next. El middleware de auth en este sistema verifica el token y llama a next() si es válido, o corta la request con res.status(401) si no lo es.' },
+  { cat: 'HTTP & REST', difficulty: 'hard', q: '¿Cómo manejarías el envío de 1000 logs de manera eficiente?', a: 'En lugar de hacer 1000 requests HTTP separadas (muy lento, mucho overhead), el cliente puede acumular los logs y enviarlos en batches (arrays) en una sola request. El servidor acepta arrays en el body y los inserta todos en una transacción. Esto reduce el overhead de red y de DB significativamente.' },
+
+  // === AUTENTICACIÓN ===
+  { cat: 'Autenticación', difficulty: 'easy', q: '¿Qué es un token de autenticación?', a: 'Una cadena de caracteres única que actúa como credencial de un servicio. El servidor mantiene una lista de tokens válidos. Cuando un cliente envía un token, el servidor verifica si está en la lista y decide si acepta o rechaza la request.' },
+  { cat: 'Autenticación', difficulty: 'easy', q: '¿Cómo se envía el token en las requests de este sistema?', a: 'En el header HTTP Authorization con el formato: Authorization: Token TU_TOKEN_AQUI. El servidor extrae el token del header, quita el prefijo "Token " y verifica si es válido.' },
+  { cat: 'Autenticación', difficulty: 'easy', q: '¿Qué responde el servidor si el token es inválido?', a: 'Devuelve un status 401 con el body: {"error": "Quién sos, bro?"}' },
+  { cat: 'Autenticación', difficulty: 'medium', q: '¿Cuál es la diferencia entre autenticación y autorización?', a: 'Autenticación es verificar quién sos (¿este token existe y es válido?). Autorización es verificar qué podés hacer (¿este servicio tiene permiso para hacer esta acción?). En este sistema solo implementamos autenticación; todos los tokens válidos tienen los mismos permisos.' },
+  { cat: 'Autenticación', difficulty: 'medium', q: '¿Por qué implementar auth en un middleware y no dentro de cada handler?', a: 'Por principio DRY (Don\'t Repeat Yourself). Si tenés 5 endpoints que requieren auth, poner la validación en un middleware significa que si cambias la lógica lo hacés en un solo lugar. También hace el código de cada handler más limpio y enfocado en su responsabilidad.' },
+  { cat: 'Autenticación', difficulty: 'medium', q: '¿Cuál es la diferencia entre un token simple y un JWT?', a: 'Un token simple es una cadena opaca que el servidor verifica contra su lista. Un JWT (JSON Web Token) contiene datos codificados (payload) que el servidor puede decodificar para obtener información sin consultar una DB. Los JWT son self-contained; los tokens simples requieren siempre consultar la lista del servidor.' },
+  { cat: 'Autenticación', difficulty: 'medium', q: '¿Dónde guardarías los tokens en un sistema real?', a: 'En variables de entorno (.env) o en un gestor de secretos como AWS Secrets Manager o HashiCorp Vault. Nunca hardcodeados en el código fuente, ya que el código se sube a repositorios. El archivo .env debe estar en el .gitignore.' },
+  { cat: 'Autenticación', difficulty: 'hard', q: '¿Qué vulnerabilidades de seguridad debería considerar en un sistema de logging real?', a: 'Tokens en texto plano (mejor usarlos hasheados), ausencia de rate limiting (alguien podría llenar la DB con basura), falta de TLS (los tokens viajan en claro si no es HTTPS), validación insuficiente de inputs (SQL injection si no usás prepared statements), y logs que contienen datos sensibles (passwords, tokens de usuarios).' },
+
+  // === BASE DE DATOS ===
+  { cat: 'Base de datos', difficulty: 'easy', q: '¿Qué columnas debe tener la tabla de logs?', a: 'id (PRIMARY KEY AUTOINCREMENT), timestamp (TEXT), service (TEXT), severity (TEXT), message (TEXT), received_at (TEXT). Todas las columnas de texto son NOT NULL ya que son requeridas.' },
+  { cat: 'Base de datos', difficulty: 'easy', q: '¿Por qué usarías SQLite para este proyecto y no Postgres?', a: 'SQLite es más simple de configurar (no requiere servidor separado, es un solo archivo), ideal para desarrollo y proyectos pequeños. No necesita instalación ni configuración adicional. Para producción con múltiples servidores o alta concurrencia, Postgres sería más apropiado.' },
+  { cat: 'Base de datos', difficulty: 'easy', q: '¿Qué es un PRIMARY KEY AUTOINCREMENT?', a: 'PRIMARY KEY significa que esa columna identifica unívocamente cada fila. AUTOINCREMENT significa que la DB asigna el valor automáticamente (1, 2, 3...), así no tenemos que generarlo nosotros al insertar.' },
+  { cat: 'Base de datos', difficulty: 'medium', q: '¿Qué es un índice de base de datos y por qué creamos uno en timestamp?', a: 'Un índice es una estructura de datos adicional que acelera las búsquedas. Sin índice, filtrar por timestamp requiere leer TODA la tabla (full table scan). Con índice, la DB puede encontrar las filas relevantes directamente. Como el filtro más común será por rango de fechas, indexamos timestamp y received_at.' },
+  { cat: 'Base de datos', difficulty: 'medium', q: '¿Cómo harías un filtro por rango de fechas en SQL?', a: 'SELECT * FROM logs WHERE timestamp >= "2025-04-30T00:00:00Z" AND timestamp <= "2025-04-30T23:59:59Z". Funciona porque las fechas en formato ISO 8601 se pueden comparar como strings (el orden lexicográfico coincide con el orden cronológico).' },
+  { cat: 'Base de datos', difficulty: 'medium', q: '¿Qué es una transacción en SQL y por qué usarla para insertar múltiples logs?', a: 'Una transacción agrupa varias operaciones de modo que o todas se ejecutan exitosamente o ninguna se aplica (atomicidad). Para insertar 1000 logs, usar una transacción es mucho más rápido (una sola operación de escritura en disco) y garantiza consistencia (si algo falla, no quedan logs parcialmente insertados).' },
+  { cat: 'Base de datos', difficulty: 'medium', q: '¿Qué son los prepared statements y por qué son importantes?', a: 'Son queries pre-compiladas con parámetros separados del SQL. En lugar de construir el string "INSERT INTO logs VALUES (\'valor_del_usuario\')", usás db.prepare("INSERT INTO logs VALUES (?)") y pasás el valor por separado. Esto previene SQL injection porque los datos del usuario nunca se interpretan como SQL.' },
+  { cat: 'Base de datos', difficulty: 'hard', q: '¿Cómo escalarías la base de datos si recibís millones de logs por día?', a: 'Estrategias: particionado por fecha (una tabla por mes), archivado de logs viejos a almacenamiento frío (S3), uso de bases de datos especializadas para logs como Elasticsearch o ClickHouse (optimizadas para búsquedas de texto y aggregaciones), o sistemas como Loki. También compresión de logs viejos.' },
+  { cat: 'Base de datos', difficulty: 'hard', q: '¿Qué es SQL injection y cómo la prevenís en este sistema?', a: 'Es un ataque donde el usuario mete SQL malicioso en los datos. Por ejemplo, si construís la query concatenando strings: "SELECT * FROM logs WHERE service = \'" + req.query.service + "\'" y alguien manda service="x\' OR 1=1 --", ejecuta SQL arbitrario. La prevención es siempre usar prepared statements/parameterized queries.' },
+
+  // === ARQUITECTURA ===
+  { cat: 'Arquitectura', difficulty: 'easy', q: '¿Cuántos componentes tiene este sistema y cuáles son?', a: 'Dos tipos de componentes: los servicios simulados (clientes, que generan y envían logs) y el servidor central (que recibe, valida, guarda y sirve logs). Dentro del servidor hay el router HTTP, el middleware de auth, los controladores y la DB.' },
+  { cat: 'Arquitectura', difficulty: 'easy', q: '¿Qué es la separación de responsabilidades (SoC) y cómo se aplica acá?', a: 'El principio de que cada componente debe tener una sola responsabilidad bien definida. En este sistema: el middleware solo hace auth, el controlador de POST solo inserta logs, el controlador de GET solo consulta, la función de DB solo maneja la persistencia. Así cada parte es testeable y modificable independientemente.' },
+  { cat: 'Arquitectura', difficulty: 'medium', q: '¿Por qué el servidor agrega received_at en lugar de usar el timestamp del cliente?', a: 'Porque el reloj del cliente puede estar mal configurado, en otra zona horaria, o el log puede llegar con retraso por problemas de red. received_at (controlado por el servidor) garantiza un timestamp confiable de cuándo el log realmente llegó al sistema centralizado.' },
+  { cat: 'Arquitectura', difficulty: 'medium', q: '¿Qué significa que un sistema sea "distribuido"?', a: 'Que sus componentes corren en múltiples procesos o máquinas que se comunican por red. En este sistema, los servicios simulados son procesos independientes que se comunican con el servidor central por HTTP. En producción estarían en máquinas distintas.' },
+  { cat: 'Arquitectura', difficulty: 'medium', q: '¿Cómo garantizarías que el sistema no explote con 1000 logs simultáneos?', a: 'Batch inserts en transacciones (mucho más eficiente que 1000 inserts individuales), validación que falle rápido antes de tocar la DB, manejo de errores que no tire el servidor, y limit/pagination en el GET para no devolver millones de registros a la vez.' },
+  { cat: 'Arquitectura', difficulty: 'hard', q: '¿Cuál sería la diferencia entre este sistema y uno que use una cola de mensajes como Kafka?', a: 'Con HTTP directo, si el servidor está caído los logs se pierden. Con Kafka, los servicios publican logs en una cola durable; el servidor los consume cuando puede. Esto da desacoplamiento temporal (el cliente no necesita que el servidor esté disponible), durabilidad, y capacidad de replay. Kafka es más complejo pero más robusto para producción.' },
+  { cat: 'Arquitectura', difficulty: 'hard', q: '¿Qué es el patrón Circuit Breaker y cuándo sería útil acá?', a: 'Es un patrón que "corta el circuito" cuando un servicio externo falla repetidamente, evitando que los clientes sigan intentando conectarse (lo que podría sobrecargar el servidor cuando se recupere). En el contexto de logging: si el servidor central no responde, el cliente puede dejar de intentar por un tiempo y guardar los logs localmente.' },
+
+  // === CÓDIGO & IMPLEMENTACIÓN ===
+  { cat: 'Código e implementación', difficulty: 'easy', q: '¿Cómo extraés el token del header Authorization en Express?', a: 'const authHeader = req.headers["authorization"]; si el formato es "Token xyz", hacés authHeader.slice(6) para quitar el prefijo "Token " (6 caracteres incluyendo el espacio). También se puede hacer authHeader.split(" ")[1].' },
+  { cat: 'Código e implementación', difficulty: 'easy', q: '¿Cómo generás un timestamp en formato ISO 8601 en JavaScript?', a: 'new Date().toISOString() devuelve algo como "2025-04-30T10:23:45.123Z". La Z al final indica UTC. Este formato es el estándar para timestamps en APIs.' },
+  { cat: 'Código e implementación', difficulty: 'easy', q: '¿Cómo leés un query parameter en Express?', a: 'req.query.nombre_del_param. Por ejemplo, para GET /logs?severity=ERROR, el valor se lee con req.query.severity. Si el param no está en la URL, req.query.severity es undefined.' },
+  { cat: 'Código e implementación', difficulty: 'medium', q: '¿Cómo harías para que el endpoint POST /logs acepte tanto un solo log como un array?', a: 'const logs = Array.isArray(req.body) ? req.body : [req.body]. Esto normaliza el input: si llega un objeto lo envuelve en array, si llega un array lo usa directamente. Después procesás siempre el array, independientemente de si vino uno o muchos.' },
+  { cat: 'Código e implementación', difficulty: 'medium', q: '¿Cómo construirías un query SQL con filtros opcionales dinámicamente?', a: 'Armás un array de conditions y un objeto params vacíos. Para cada filtro que venga en req.query, si existe lo agregás a conditions y a params. Al final: const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "". Así el query se adapta a los filtros presentes.' },
+  { cat: 'Código e implementación', difficulty: 'medium', q: '¿Por qué usar try/catch en los handlers de Express?', a: 'Para capturar errores inesperados (ej: error de DB) y devolver un 500 controlado en lugar de que Express devuelva un stack trace o que el proceso se caiga. Sin try/catch, un error no manejado puede tirar todo el servidor.' },
+  { cat: 'Código e implementación', difficulty: 'medium', q: '¿Cuál es la diferencia entre usar ORM (como Sequelize) y SQL directo?', a: 'Un ORM abstrae el SQL y te deja trabajar con objetos JS. Es más cómodo pero agrega complejidad y puede generar queries ineficientes. SQL directo con prepared statements te da control total, es más performante y más predecible. Para un sistema de logging donde las queries son simples, SQL directo es mejor opción.' },
+  { cat: 'Código e implementación', difficulty: 'medium', q: '¿Cómo validarías que el body tiene todos los campos requeridos?', a: 'const required = ["timestamp", "service", "severity", "message"]; for (const field of required) { if (!body[field]) return res.status(400).json({ error: "Campo requerido: " + field }); }. También podés verificar que severity sea uno de los valores válidos.' },
+  { cat: 'Código e implementación', difficulty: 'hard', q: '¿Cómo harías un insert de múltiples logs eficientemente con better-sqlite3?', a: 'Usás db.transaction(): const insert = db.prepare("INSERT INTO logs (...) VALUES (...)"); const insertMany = db.transaction((items) => { for (const item of items) insert.run(item); }); insertMany(logsArray). Esto ejecuta todos los inserts en una sola transacción, que es ordenes de magnitud más rápido que N transacciones separadas.' },
+  { cat: 'Código e implementación', difficulty: 'hard', q: '¿Cómo harías para que el cliente reintente si el servidor no responde?', a: 'Implementar retry con backoff exponencial: primer reintento a los 1s, segundo a los 2s, tercero a los 4s, etc. Limitar el número de reintentos (ej: máximo 3). Si todos fallan, guardar el log localmente en un archivo/queue para reintentar más tarde.' },
+
+  // === TESTING ===
+  { cat: 'Testing & debugging', difficulty: 'easy', q: '¿Cómo testearías el POST /logs con curl?', a: 'curl -X POST http://localhost:3000/logs -H "Authorization: Token token_001" -H "Content-Type: application/json" -d \'{"timestamp":"2025-04-30T10:00:00Z","service":"test","severity":"INFO","message":"test"}\'' },
+  { cat: 'Testing & debugging', difficulty: 'easy', q: '¿Cómo testearías que un token inválido da 401?', a: 'curl -X POST http://localhost:3000/logs -H "Authorization: Token token_invalido" -H "Content-Type: application/json" -d \'{"timestamp":"2025-04-30T10:00:00Z","service":"test","severity":"INFO","message":"test"}\' y verificar que la respuesta sea 401 con {"error": "Quién sos, bro?"}.' },
+  { cat: 'Testing & debugging', difficulty: 'medium', q: '¿Cómo debuggearías si los logs no aparecen en el GET /logs?', a: 'Primero verificar que el POST devolvió 201 (los logs se guardaron). Luego hacer GET sin filtros para ver si hay datos. Si no hay, revisar la conexión a la DB y si la tabla existe. Si hay pero no con filtros, revisar el formato de los timestamps en la query.' },
+  { cat: 'Testing & debugging', difficulty: 'medium', q: '¿Cómo verificarías que el filtro por fecha funciona correctamente?', a: 'Insertar logs con timestamps conocidos (ej: uno con timestamp "2025-01-01" y otro con "2025-12-31"). Hacer GET con timestamp_start="2025-06-01" y verificar que solo devuelve el del 31 de diciembre. Así se prueba que el filtro incluye/excluye correctamente.' },
+  { cat: 'Testing & debugging', difficulty: 'hard', q: '¿Cómo probarías que el sistema aguanta 1000 logs sin explotar?', a: 'Crear un script que genere y envíe 1000 logs en batch (como array) y medir el tiempo de respuesta. También probar con 1000 requests individuales concurrentes y ver si el servidor mantiene la estabilidad. Verificar en la DB que los 1000 registros están después.' },
+
+  // === ESCENARIOS Y TRADE-OFFS ===
+  { cat: 'Trade-offs y decisiones de diseño', difficulty: 'medium', q: '¿Por qué los tokens están hardcodeados en este sistema y qué problemas trae?', a: 'Para simplificar el challenge. Los problemas: si un token se compromete tenés que cambiar el código y redesplegar; no podés revocar tokens individualmente fácilmente; los tokens están en el código fuente (no deberían estar). La solución real: guardarlos en variables de entorno o en una tabla de la DB.' },
+  { cat: 'Trade-offs y decisiones de diseño', difficulty: 'medium', q: '¿Qué ordernarías los resultados del GET /logs y por qué?', a: 'Por timestamp DESC (más recientes primero). En debugging, generalmente te interesa ver los últimos eventos primero. También podrías ordenar por received_at DESC si querés ver en qué orden llegaron al servidor.' },
+  { cat: 'Trade-offs y decisiones de diseño', difficulty: 'medium', q: '¿Deberías implementar paginación en el GET /logs? ¿Por qué?', a: 'Sí, es importante. Sin paginación, si hay 10 millones de logs y alguien hace GET /logs sin filtros, el servidor intenta cargar todo en memoria y probablemente se cae. Con LIMIT y OFFSET (o cursor-based pagination) controlás cuántos registros devolvés por vez.' },
+  { cat: 'Trade-offs y decisiones de diseño', difficulty: 'hard', q: '¿Cómo decidirías entre SQLite, Postgres, y Elasticsearch para este sistema?', a: 'SQLite: perfecto para desarrollo y sistemas pequeños, cero configuración, pero no escala bien con escrituras concurrentes. Postgres: robusto, maneja bien concurrencia, escalable, ideal para producción con carga moderada. Elasticsearch: optimizado para búsqueda de texto full-text en logs, agregaciones complejas, usado por sistemas de logging reales como ELK Stack. Para este challenge, SQLite es la elección correcta.' },
+  { cat: 'Trade-offs y decisiones de diseño', difficulty: 'hard', q: '¿Qué harías si un servicio envía logs con formato incorrecto o malicioso?', a: 'Validar estrictamente: verificar que todos los campos requeridos existen y tienen el tipo correcto, que severity es uno de los valores válidos, que timestamp es una fecha válida. Rechazar con 400 cualquier log que no cumpla. Considerar limitar el tamaño del message para evitar que alguien llene la DB con strings enormes.' },
+  { cat: 'Trade-offs y decisiones de diseño', difficulty: 'hard', q: '¿Cómo escalarías horizontalmente el servidor de logs?', a: 'Si tenés múltiples instancias del servidor, necesitás que compartan la misma DB (SQLite no funciona bien con múltiples procesos escritores, necesitás Postgres). También necesitás un load balancer delante. Para escala masiva, el patrón es separar la escritura (recibir logs) de la lectura (consultarlos), potencialmente con una cola de mensajes en el medio.' },
+
+  // === CONCEPTOS AVANZADOS ===
+  { cat: 'Conceptos avanzados', difficulty: 'hard', q: '¿Qué es la idempotencia y es relevante para este sistema?', a: 'Idempotencia significa que ejecutar la misma operación múltiples veces da el mismo resultado. En logging no buscamos idempotencia: si un cliente reenvía el mismo log por un retry, queremos que se guarden los dos (son dos eventos distintos). Pero en otros sistemas (pagos, por ejemplo) la idempotencia es crítica.' },
+  { cat: 'Conceptos avanzados', difficulty: 'hard', q: '¿Qué son las trazas distribuidas y cómo complementan al logging?', a: 'Las trazas (traces) rastrean el recorrido completo de una request a través de múltiples servicios, usando un ID único (trace ID) que se propaga entre servicios. Mientras los logs dicen "qué pasó en cada servicio", las trazas dicen "cómo fluye una request específica de A a B a C y cuánto tardó cada paso".' },
+  { cat: 'Conceptos avanzados', difficulty: 'hard', q: '¿Qué es el patrón ELK Stack y cómo se relaciona con este challenge?', a: 'ELK = Elasticsearch (almacenamiento y búsqueda), Logstash (procesamiento e ingesta de logs), Kibana (visualización). Es el stack estándar de la industria para logging centralizado. Este challenge implementa los mismos conceptos pero simplificados: Express hace de Logstash, SQLite de Elasticsearch, y el GET /logs de Kibana.' },
+  { cat: 'Conceptos avanzados', difficulty: 'hard', q: '¿Qué es rate limiting y por qué sería importante en un servidor de logs?', a: 'Rate limiting limita cuántas requests puede hacer un cliente en un período de tiempo. Sin él, un servicio buggeado podría generar millones de logs por segundo, llenando la DB y haciendo el sistema inutilizable para otros. Se implementa contando requests por token en un período y rechazando con 429 cuando se supera el límite.' },
+  { cat: 'Conceptos avanzados', difficulty: 'hard', q: '¿Cómo implementarías retención automática de logs (borrar logs más viejos de X días)?', a: 'Con un job periódico (cron job) que ejecute DELETE FROM logs WHERE received_at < datetime("now", "-30 days"). En Node.js se puede usar node-cron o setInterval. También se puede implementar con particionamiento por fecha y borrar particiones completas.' },
+
+  // === LIVE CODING SITUACIONAL ===
+  { cat: 'Live coding — situacional', difficulty: 'medium', q: '¿Cómo agregarías un filtro por severity al GET /logs?', a: 'En el handler del GET, leer req.query.severity. Si existe, agregar "severity = @severity" a las conditions y "severity: req.query.severity" al objeto params. El resto del mecanismo de query dinámico ya lo maneja.' },
+  { cat: 'Live coding — situacional', difficulty: 'medium', q: '¿Cómo agregarías un endpoint GET /logs/stats que devuelva el conteo de logs por severity?', a: 'app.get("/logs/stats", authMiddleware, (req, res) => { const stats = db.prepare("SELECT severity, COUNT(*) as count FROM logs GROUP BY severity").all(); res.json(stats); });' },
+  { cat: 'Live coding — situacional', difficulty: 'medium', q: '¿Cómo agregarías un filtro por service al GET /logs?', a: 'Igual que el filtro por severity: leer req.query.service, si existe agregar "service = @service" a las conditions y el valor al objeto params. El WHERE dinámico ya combina todos los filtros con AND automáticamente.' },
+  { cat: 'Live coding — situacional', difficulty: 'hard', q: '¿Cómo implementarías paginación básica en el GET /logs?', a: 'Leer req.query.limit (default 100) y req.query.offset (default 0). Agregar LIMIT @limit OFFSET @offset al final del query SQL. Devolver también el total de registros (con COUNT(*)) para que el cliente sepa cuántas páginas hay.' },
+  { cat: 'Live coding — situacional', difficulty: 'hard', q: '¿Cómo agregarías un endpoint DELETE /logs que borre logs más viejos de N días?', a: 'app.delete("/logs", authMiddleware, (req, res) => { const days = req.query.older_than_days || 30; const result = db.prepare("DELETE FROM logs WHERE received_at < datetime(\'now\', \'-" + parseInt(days) + " days\')").run(); res.json({ deleted: result.changes }); });' },
+
+  // === CONCEPTOS FINALES ===
+  { cat: 'Repaso rápido', difficulty: 'easy', q: '¿Qué hace express.json()?', a: 'Es un middleware de Express que parsea automáticamente el body de las requests con Content-Type: application/json y lo pone disponible en req.body como objeto JavaScript. Sin esto, req.body sería undefined.' },
+  { cat: 'Repaso rápido', difficulty: 'easy', q: '¿Qué significa "puerto" en el contexto del servidor?', a: 'Un número del 0 al 65535 que identifica a qué proceso dentro de una máquina va dirigido el tráfico de red. El servidor "escucha" en un puerto (ej: 3000). Los clientes se conectan a ese puerto para comunicarse con el servidor.' },
+  { cat: 'Repaso rápido', difficulty: 'easy', q: '¿Qué es el archivo .gitignore y por qué es importante?', a: 'Lista de archivos y carpetas que Git ignora (no versiona). Es crucial para excluir node_modules (muy pesado, se puede regenerar con npm install), archivos .env (contienen secretos que no deben ir al repositorio), y archivos de DB locales.' },
+  { cat: 'Repaso rápido', difficulty: 'medium', q: '¿Qué es CORS y podría ser relevante en este sistema?', a: 'Cross-Origin Resource Sharing: política del browser que bloquea requests a un dominio distinto al del origen. En este sistema, como los clientes son scripts de Node.js (no browsers), CORS no es relevante. Sería relevante si hubiera un frontend web tratando de llamar al servidor.' },
+  { cat: 'Repaso rápido', difficulty: 'medium', q: '¿Qué es el formato ISO 8601 para fechas?', a: 'El estándar internacional para representar fechas y tiempos. Formato: YYYY-MM-DDTHH:mm:ss.mmmZ. Ejemplo: 2025-04-30T10:23:45.432Z. La T separa fecha de hora; la Z indica UTC. La ventaja es que se puede ordenar lexicográficamente y funciona bien en SQL.' },
+  { cat: 'Repaso rápido', difficulty: 'easy', q: '¿Qué es npm install y cuándo se usa?', a: 'Comando que lee el archivo package.json y descarga todas las dependencias listadas en node_modules. Se usa la primera vez que clonás un proyecto, y cada vez que alguien agrega una nueva dependencia al package.json.' },
+  { cat: 'Repaso rápido', difficulty: 'medium', q: '¿Cuál es la diferencia entre dependencias y devDependencies en package.json?', a: 'dependencies son paquetes necesarios en producción (express, better-sqlite3, axios). devDependencies son paquetes solo necesarios durante el desarrollo (nodemon, jest). En producción se puede instalar solo dependencies con npm install --production.' },
+  { cat: 'Repaso rápido', difficulty: 'easy', q: '¿Qué es nodemon y por qué es útil durante el desarrollo?', a: 'Una herramienta que reinicia el servidor automáticamente cuando detecta cambios en los archivos. Sin nodemon, cada vez que cambiás el código tenés que parar y volver a arrancar el servidor manualmente. Se instala como devDependency.' },
+  { cat: 'Repaso rápido', difficulty: 'medium', q: '¿Qué es un Promise y cómo se relaciona con async/await?', a: 'Un Promise representa una operación asíncrona que puede resolverse exitosamente (resolve) o fallar (reject). async/await es syntax sugar sobre Promises: async function hace que la función devuelva una Promise, y await pausa la ejecución hasta que la Promise se resuelva, sin bloquear el event loop.' },
+  { cat: 'Repaso rápido', difficulty: 'medium', q: '¿Por qué Node.js es una buena elección para un servidor de logging?', a: 'El event loop de Node.js lo hace excelente para I/O intensivo (muchas conexiones simultáneas, operaciones de DB). Un servidor de logging recibe muchas requests de escritura concurrentes, exactamente el escenario donde Node.js brilla. También tiene un ecosistema rico para HTTP (Express) y bases de datos.' },
+];
+
+function renderQuestions() {
+  const container = document.getElementById('questions-container');
+  const byCategory = {};
+  questions.forEach((q, i) => {
+    if (!byCategory[q.cat]) byCategory[q.cat] = [];
+    byCategory[q.cat].push({ ...q, idx: i });
+  });
+
+  let html = '';
+  let num = 1;
+  for (const [cat, qs] of Object.entries(byCategory)) {
+    html += `<div class="q-category">${cat}</div>`;
+    qs.forEach(q => {
+      const diffLabel = q.difficulty === 'easy' ? 'fácil' : q.difficulty === 'medium' ? 'medio' : 'difícil';
+      html += `
+        <div class="q-item" onclick="toggleQ(this)">
+          <div class="q-num">${String(num).padStart(2,'0')}</div>
+          <div style="flex:1">
+            <div class="q-text">${q.q}</div>
+            <div class="q-answer">${q.a}</div>
+          </div>
+          <div class="q-difficulty ${q.difficulty}">${diffLabel}</div>
+        </div>`;
+      num++;
+    });
+  }
+  container.innerHTML = html;
+}
+
+function toggleQ(el) {
+  el.classList.toggle('open');
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+// Nav active state on scroll
+const navLinks = document.querySelectorAll('nav a');
+const sections = document.querySelectorAll('section');
+
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+
+renderQuestions();
+</script>
+</body>
+</html>
