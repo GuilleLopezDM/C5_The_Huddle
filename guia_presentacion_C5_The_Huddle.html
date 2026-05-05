@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C5 The Huddle — Guía de Presentación</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3d;
+    --accent: #7c6af7;
+    --accent2: #3ecfb0;
+    --accent3: #f76a6a;
+    --accent4: #f7a94a;
+    --text: #e8e8f0;
+    --muted: #8585ad;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.7; }
+  .hero { padding: 80px 40px 60px; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -100px; left: -100px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(124,106,247,0.15) 0%, transparent 70%); pointer-events: none; }
+  .hero::after { content: ''; position: absolute; bottom: -80px; right: -80px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(62,207,176,0.1) 0%, transparent 70%); pointer-events: none; }
+  .hero-label { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; }
+  .hero h1 { font-size: clamp(36px, 5vw, 64px); font-weight: 800; line-height: 1.05; margin-bottom: 20px; letter-spacing: -0.02em; }
+  .hero h1 span { color: var(--accent); }
+  .hero-sub { color: var(--muted); max-width: 720px; font-family: var(--mono); font-size: 13px; }
+  .badges { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+  .badge { font-family: var(--mono); font-size: 11px; padding: 5px 12px; border-radius: 4px; border: 1px solid; }
+  .badge-purple { color: var(--accent); border-color: var(--accent); background: rgba(124,106,247,0.08); }
+  .badge-teal { color: var(--accent2); border-color: var(--accent2); background: rgba(62,207,176,0.08); }
+  .badge-red { color: var(--accent3); border-color: var(--accent3); background: rgba(247,106,106,0.08); }
+  .badge-amber { color: var(--accent4); border-color: var(--accent4); background: rgba(247,169,74,0.08); }
+  nav { position: sticky; top: 0; z-index: 100; background: rgba(10,10,15,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 40px; display: flex; overflow-x: auto; }
+  nav a { font-family: var(--mono); font-size: 12px; color: var(--muted); text-decoration: none; padding: 16px 20px; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.2s, border-color 0.2s; }
+  nav a:hover { color: var(--text); }
+  nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+  main { max-width: 1100px; margin: 0 auto; padding: 60px 40px; }
+  section { margin-bottom: 80px; }
+  .section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 36px; }
+  .section-num { font-family: var(--mono); font-size: 11px; color: var(--accent); background: rgba(124,106,247,0.1); border: 1px solid rgba(124,106,247,0.3); padding: 4px 10px; border-radius: 4px; letter-spacing: 0.1em; }
+  .section-num.teal { color: var(--accent2); background: rgba(62,207,176,0.1); border-color: rgba(62,207,176,0.3); }
+  .section-num.red { color: var(--accent3); background: rgba(247,106,106,0.1); border-color: rgba(247,106,106,0.3); }
+  .section-num.amber { color: var(--accent4); background: rgba(247,169,74,0.1); border-color: rgba(247,169,74,0.3); }
+  h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; }
+  .divider { height: 1px; background: linear-gradient(90deg, var(--accent) 0%, transparent 100%); margin-bottom: 36px; opacity: 0.3; }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; transition: border-color 0.2s; }
+  .card:hover { border-color: var(--accent); }
+  .card-icon { font-size: 22px; margin-bottom: 12px; display: block; }
+  .card-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+  .card p { font-size: 13px; color: var(--muted); line-height: 1.7; font-family: var(--mono); }
+  .concept { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px 32px; margin-bottom: 20px; }
+  .concept h3 { font-size: 18px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+  .concept p { font-size: 14px; color: var(--muted); margin-bottom: 14px; line-height: 1.8; font-family: var(--mono); }
+  .concept ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .concept ul li { font-size: 13px; font-family: var(--mono); color: var(--muted); padding-left: 20px; position: relative; }
+  .concept ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+  pre { background: #0d0d14; border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; overflow-x: auto; margin: 16px 0; font-family: var(--mono); font-size: 12px; line-height: 1.7; }
+  .kw { color: #c792ea; }
+  .fn { color: #82aaff; }
+  .str { color: #c3e88d; }
+  .cm { color: #546e7a; font-style: italic; }
+  .num { color: #f78c6c; }
+  .const { color: var(--accent4); }
+  .arch-flow { display: flex; flex-direction: column; gap: 0; max-width: 760px; margin: 0 auto; }
+  .arch-node { display: flex; align-items: flex-start; gap: 20px; }
+  .arch-line { display: flex; flex-direction: column; align-items: center; padding-top: 4px; }
+  .arch-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 2px solid; }
+  .arch-connector { width: 2px; flex: 1; min-height: 24px; background: var(--border); }
+  .arch-content { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 8px; flex: 1; }
+  .arch-content h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .arch-content p { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .skills-table { width: 100%; border-collapse: collapse; }
+  .skills-table th { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+  .skills-table td { padding: 12px 16px; border-bottom: 1px solid rgba(42,42,61,0.5); font-size: 13px; font-family: var(--mono); vertical-align: top; }
+  .skills-table tr:hover td { background: var(--surface); }
+  .skill-name { color: var(--text); font-weight: 700; }
+  .skill-desc { color: var(--muted); }
+  .stars { color: var(--accent4); letter-spacing: 2px; }
+  .tip { background: rgba(124,106,247,0.07); border: 1px solid rgba(124,106,247,0.25); border-radius: 8px; padding: 16px 20px; font-size: 13px; font-family: var(--mono); color: var(--muted); margin: 20px 0; }
+  .tip strong { color: var(--accent); }
+  .checklist { display: flex; flex-direction: column; gap: 10px; }
+  .check-item { display: flex; gap: 14px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; }
+  .check-box { width: 18px; height: 18px; border: 2px solid var(--accent); border-radius: 4px; flex-shrink: 0; margin-top: 2px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; transition: background 0.15s; }
+  .check-box.checked { background: var(--accent); }
+  .check-label { font-size: 13px; font-family: var(--mono); color: var(--muted); }
+  .check-label strong { color: var(--text); display: block; margin-bottom: 2px; }
+  .q-grid { display: flex; flex-direction: column; gap: 0; }
+  .q-category { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; padding: 24px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+  .q-item { display: flex; gap: 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; border-radius: 6px; padding: 14px 16px; }
+  .q-item:hover { background: var(--surface); }
+  .q-num { font-family: var(--mono); font-size: 11px; color: var(--accent); min-width: 32px; padding-top: 2px; }
+  .q-text { font-size: 14px; color: var(--text); flex: 1; }
+  .q-answer { display: none; font-size: 13px; color: var(--muted); font-family: var(--mono); line-height: 1.7; margin-top: 10px; padding: 14px 16px; background: var(--surface2); border-left: 2px solid var(--accent); border-radius: 0 6px 6px 0; }
+  .q-item.open .q-answer { display: block; }
+  .q-difficulty { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border-radius: 3px; height: fit-content; margin-top: 3px; white-space: nowrap; }
+  .easy { background: rgba(62,207,176,0.12); color: var(--accent2); }
+  .medium { background: rgba(247,169,74,0.12); color: var(--accent4); }
+  .hard { background: rgba(247,106,106,0.12); color: var(--accent3); }
+  footer { text-align: center; padding: 40px; color: var(--muted); font-family: var(--mono); font-size: 12px; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="hero-label">// C5_The_Huddle — guía para presentar tu código</div>
+  <h1>Tu sistema de logging<br><span>en Python + Flask</span></h1>
+  <p class="hero-sub">Resumen claro de tu arquitectura, carpetas, endpoints, base de datos, autenticación por token y respuestas que tenés que saber para defender el Challenge 5.</p>
+  <div class="badges">
+    <span class="badge badge-purple">3 servicios simulados</span>
+    <span class="badge badge-teal">Flask + SQLite</span>
+    <span class="badge badge-red">POST /logs + GET /logs</span>
+    <span class="badge badge-amber">No usa JWT real</span>
+  </div>
+</div>
+<nav>
+  <a href="#resumen" class="active">Resumen</a>
+  <a href="#arquitectura">Arquitectura</a>
+  <a href="#carpetas">Carpetas</a>
+  <a href="#codigo">Código clave</a>
+  <a href="#presentacion">Qué decir</a>
+  <a href="#preguntas">Preguntas</a>
+  <a href="#checklist">Checklist</a>
+</nav>
+<main>
+<section id="resumen">
+  <div class="section-header"><span class="section-num">01</span><h2>Resumen de tu proyecto</h2></div>
+  <div class="divider"></div>
+  <div class="card-grid">
+    <div class="card"><span class="card-icon">🧠</span><div class="card-title">Qué construiste</div><p>Un sistema de logging distribuido: varios servicios generan logs falsos y los mandan a un servidor central.</p></div>
+    <div class="card"><span class="card-icon">📡</span><div class="card-title">Cómo se comunican</div><p>Los clientes hacen requests HTTP al servidor usando POST /logs. El formato del body es JSON.</p></div>
+    <div class="card"><span class="card-icon">🔐</span><div class="card-title">Cómo se autentican</div><p>Cada servicio usa un token estático en el header Authorization. No estás usando JWT real.</p></div>
+    <div class="card"><span class="card-icon">🗄️</span><div class="card-title">Dónde se guardan</div><p>El servidor valida los logs y los guarda en SQLite, en el archivo logs.db.</p></div>
+  </div>
+  <div class="concept">
+    <h3>Explicación corta</h3>
+    <p>Mi proyecto simula un entorno con 3 servicios: auth-service, payments-service y socket-service. Cada uno genera logs con timestamp, service, severity y message. Después los envía al servidor central mediante HTTP. El servidor valida el token, valida el formato del log, agrega received_at y guarda todo en una base SQLite. Luego se pueden consultar los logs con GET /logs y filtros por fecha.</p>
+  </div>
+</section>
+<section id="arquitectura">
+  <div class="section-header"><span class="section-num teal">02</span><h2>Arquitectura del sistema</h2></div>
+  <div class="divider"></div>
+  <div class="arch-flow">
+    <div class="arch-node"><div class="arch-line"><div class="arch-dot" style="border-color:#7c6af7;background:rgba(124,106,247,.2)"></div><div class="arch-connector"></div></div><div class="arch-content" style="border-color:rgba(124,106,247,.3)"><h4 style="color:#7c6af7">clients/ — servicios simulados</h4><p>auth_service.py, payments_service.py y socket_service.py generan logs falsos pero realistas. Cada servicio tiene nombre, token y mensajes propios.</p></div></div>
+    <div class="arch-node"><div class="arch-line"><div class="arch-dot" style="border-color:#f7a94a;background:rgba(247,169,74,.2)"></div><div class="arch-connector"></div></div><div class="arch-content" style="border-color:rgba(247,169,74,.3)"><h4 style="color:#f7a94a">base.py — lógica común</h4><p>Genera timestamps, severities aleatorios y mensajes. También arma la request HTTP con Content-Type y Authorization.</p></div></div>
+    <div class="arch-node"><div class="arch-line"><div class="arch-dot" style="border-color:#3ecfb0;background:rgba(62,207,176,.2)"></div><div class="arch-connector"></div></div><div class="arch-content" style="border-color:rgba(62,207,176,.3)"><h4 style="color:#3ecfb0">POST /logs — recibir logs</h4><p>El servidor valida el token, acepta un log o una lista de logs, valida campos obligatorios y guarda los válidos.</p></div></div>
+    <div class="arch-node"><div class="arch-line"><div class="arch-dot" style="border-color:#82aaff;background:rgba(130,170,255,.2)"></div><div class="arch-connector"></div></div><div class="arch-content" style="border-color:rgba(130,170,255,.3)"><h4 style="color:#82aaff">GET /logs — consultar logs</h4><p>Permite leer los logs guardados. Acepta filtros opcionales: timestamp_start, timestamp_end, received_at_start y received_at_end.</p></div></div>
+    <div class="arch-node"><div class="arch-line"><div class="arch-dot" style="border-color:#f76a6a;background:rgba(247,106,106,.2)"></div></div><div class="arch-content" style="border-color:rgba(247,106,106,.3)"><h4 style="color:#f76a6a">logs.db — SQLite</h4><p>Guarda id, received_at, timestamp, service, severity y message. También tiene índices para acelerar búsquedas por fecha.</p></div></div>
+  </div>
+</section>
+<section id="carpetas">
+  <div class="section-header"><span class="section-num red">03</span><h2>Tu estructura de carpetas</h2></div>
+  <div class="divider"></div>
+  <div class="concept">
+    <h3>Estructura final</h3>
+<pre>C5_The_Huddle/
+|-- README.md
+|-- challenge5.md
+|-- requirements.txt
+|-- logging-challenge-guide.html
+|-- clients/
+|   |-- base.py
+|   |-- run_clients.py
+|   |-- auth_service.py
+|   |-- payments_service.py
+|   `-- socket_service.py
+`-- server/
+    |-- server.py
+    |-- config.py
+    |-- database.py
+    |-- validators.py
+    |-- logs.db
+    `-- routes/
+        |-- logs_post.py
+        |-- logs_get.py
+        `-- __init__.py</pre>
+  </div>
+  <div class="card-grid">
+    <div class="card"><div class="card-title">clients/base.py</div><p>Archivo compartido por los clientes. Tiene generate_log(), send_logs() y run_service(). Evita repetir código.</p></div>
+    <div class="card"><div class="card-title">clients/run_clients.py</div><p>Orquestador. Corre los 3 servicios y puede ejecutar stress test para mandar muchos logs.</p></div>
+    <div class="card"><div class="card-title">server/server.py</div><p>Entry point del servidor Flask. Inicializa la DB, registra rutas y escucha en localhost:8080.</p></div>
+    <div class="card"><div class="card-title">server/routes/</div><p>Separa las rutas: logs_post.py para recibir logs y logs_get.py para consultarlos.</p></div>
+    <div class="card"><div class="card-title">server/validators.py</div><p>Valida autenticación y formato de logs. Revisa token, timestamp, severity y message.</p></div>
+    <div class="card"><div class="card-title">server/database.py</div><p>Crea la tabla, inserta logs y arma los filtros dinámicos para consultar por fechas.</p></div>
+  </div>
+</section>
+<section id="codigo">
+  <div class="section-header"><span class="section-num amber">04</span><h2>Código clave que tenés que conocer</h2></div>
+  <div class="divider"></div>
+  <div class="concept">
+    <h3>config.py — tokens válidos</h3>
+<pre><span class="const">VALID_TOKENS</span> = {
+    <span class="str">"Token svc-auth-penguin-001"</span>:     <span class="str">"auth-service"</span>,
+    <span class="str">"Token svc-payments-penguin-002"</span>: <span class="str">"payments-service"</span>,
+    <span class="str">"Token svc-socket-penguin-004"</span>:   <span class="str">"socket-service"</span>,
+}</pre>
+    <p>Esto no es JWT. Es una lista manual de tokens estáticos. Si el header Authorization coincide con una clave del diccionario, el servidor acepta la request.</p>
+  </div>
+  <div class="concept">
+    <h3>validators.py — autenticación y validación</h3>
+<pre><span class="kw">def</span> <span class="fn">authenticate</span>() -> bool:
+    <span class="kw">return</span> request.headers.get(<span class="str">"Authorization"</span>, <span class="str">""</span>) <span class="kw">in</span> VALID_TOKENS
+
+<span class="kw">def</span> <span class="fn">validate_log_entry</span>(entry: dict):
+    <span class="kw">for</span> field <span class="kw">in</span> [<span class="str">"timestamp"</span>, <span class="str">"service"</span>, <span class="str">"severity"</span>, <span class="str">"message"</span>]:
+        <span class="kw">if</span> field <span class="kw">not in</span> entry:
+            <span class="kw">return</span> False, f<span class="str">"Campo faltante: '{field}'"</span></pre>
+    <p>Primero se verifica quién manda el log. Después se revisa que el log tenga los campos mínimos y que el severity sea válido.</p>
+  </div>
+  <div class="concept">
+    <h3>logs_post.py — POST /logs</h3>
+<pre><span class="kw">@logs_post_bp.post</span>(<span class="str">"/logs"</span>)
+<span class="kw">def</span> <span class="fn">receive_logs</span>():
+    <span class="kw">if</span> <span class="kw">not</span> authenticate():
+        <span class="kw">return</span> jsonify({<span class="str">"error"</span>: <span class="str">"Quién sos, bro?"</span>}), <span class="num">401</span>
+
+    data = request.get_json(silent=True)
+
+    <span class="kw">if</span> isinstance(data, dict):
+        entries = [data]
+    <span class="kw">elif</span> isinstance(data, list):
+        entries = data
+
+    saved = insert_logs(valid_entries) <span class="kw">if</span> valid_entries <span class="kw">else</span> <span class="num">0</span></pre>
+    <p>Este endpoint recibe logs. Puede recibir uno solo o varios en una lista. Guarda los válidos y devuelve cuántos se guardaron y cuántos se rechazaron.</p>
+  </div>
+  <div class="concept">
+    <h3>database.py — tabla y filtros</h3>
+<pre>CREATE TABLE IF NOT EXISTS logs (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    received_at TEXT    NOT NULL,
+    timestamp   TEXT    NOT NULL,
+    service     TEXT    NOT NULL,
+    severity    TEXT    NOT NULL,
+    message     TEXT    NOT NULL
+)</pre>
+    <p>La base guarda dos fechas importantes: timestamp es cuándo ocurrió el evento en el servicio, y received_at es cuándo llegó al servidor.</p>
+<pre><span class="kw">if</span> ts := params.get(<span class="str">"timestamp_start"</span>):
+    conditions.append(<span class="str">"timestamp >= ?"</span>)
+    values.append(ts)</pre>
+    <p>Los filtros se construyen dinámicamente. Si el usuario manda parámetros en la URL, se agregan condiciones al WHERE.</p>
+  </div>
+  <div class="concept">
+    <h3>base.py — envío HTTP desde clientes</h3>
+<pre>headers = {
+    <span class="str">"Content-Type"</span>:  <span class="str">"application/json"</span>,
+    <span class="str">"Authorization"</span>: f<span class="str">"Token {service['token']}"</span>,
+}
+req = urllib.request.Request(SERVER_URL, data=body, headers=headers, method=<span class="str">"POST"</span>)</pre>
+    <p>Los clientes no escriben directamente en la base. Se comunican con el servidor por HTTP, como pasaría en un sistema distribuido real.</p>
+  </div>
+</section>
+<section id="presentacion">
+  <div class="section-header"><span class="section-num teal">05</span><h2>Qué tenés que decir en la presentación</h2></div>
+  <div class="divider"></div>
+  <div class="concept">
+    <h3>Intro de 30 segundos</h3>
+    <p>Este proyecto es un sistema de logging distribuido. Separé el código en clientes y servidor. Los clientes simulan servicios reales que generan logs y los mandan por HTTP. El servidor central los recibe, valida el token, valida el formato, los guarda en SQLite y permite consultarlos con filtros por fecha.</p>
+  </div>
+  <div class="concept">
+    <h3>Frases clave para defender decisiones</h3>
+    <ul>
+      <li>Usé Flask porque el challenge necesitaba endpoints HTTP simples y claros.</li>
+      <li>Usé SQLite porque es suficiente para una demo local y no requiere configurar un servidor de base de datos externo.</li>
+      <li>Separé clients/ y server/ para mostrar arquitectura cliente-servidor.</li>
+      <li>Separé routes/, validators.py y database.py para mantener responsabilidades claras.</li>
+      <li>No uso JWT real; uso tokens estáticos en Authorization porque el challenge pedía autenticación con tokens.</li>
+      <li>received_at lo agrega el servidor para saber cuándo llegó el log, independientemente del timestamp del cliente.</li>
+      <li>El POST acepta batches para no mandar un request por cada log cuando hay muchos.</li>
+    </ul>
+  </div>
+  <div class="tip"><strong>Respuesta si te preguntan por JWT:</strong><br>No, no implementé JWT real. Algunos mensajes simulados del auth-service hablan de JWT, pero son solo contenido del log. La autenticación real de mi sistema es con tokens estáticos enviados en el header Authorization.</div>
+  <div class="concept">
+    <h3>Comandos para demo</h3>
+<pre><span class="cm"># 1. Instalar dependencias</span>
+pip install -r requirements.txt
+
+<span class="cm"># 2. Levantar servidor</span>
+cd server
+python server.py
+
+<span class="cm"># 3. En otra terminal, correr clientes</span>
+cd clients
+python run_clients.py
+
+<span class="cm"># 4. Stress test</span>
+python run_clients.py --stress 50</pre>
+  </div>
+  <div class="concept">
+    <h3>Curl útil para mostrar en vivo</h3>
+<pre><span class="cm"># Consultar logs</span>
+curl -H "Authorization: Token svc-auth-penguin-001" http://localhost:8080/logs
+
+<span class="cm"># Enviar un log manualmente</span>
+curl -X POST http://localhost:8080/logs \
+  -H "Authorization: Token svc-auth-penguin-001" \
+  -H "Content-Type: application/json" \
+  -d '{"timestamp":"2026-05-03T12:00:00Z","service":"auth-service","severity":"INFO","message":"Demo manual"}'
+
+<span class="cm"># Consultar con filtro</span>
+curl -H "Authorization: Token svc-auth-penguin-001" \
+  "http://localhost:8080/logs?timestamp_start=2026-05-03T00:00:00Z"</pre>
+  </div>
+</section>
+<section id="preguntas">
+  <div class="section-header"><span class="section-num">06</span><h2>Preguntas que podrían hacerte</h2></div>
+  <div class="divider"></div>
+  <div class="tip"><strong>Tip:</strong> Hacé click en cada pregunta para ver la respuesta.</div>
+  <div class="q-grid" id="questions-container"></div>
+</section>
+<section id="checklist">
+  <div class="section-header"><span class="section-num red">07</span><h2>Checklist antes de entregar/presentar</h2></div>
+  <div class="divider"></div>
+  <div class="checklist">
+    <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-label"><strong>Servidor levanta sin error</strong>Desde server/: python server.py y queda en http://localhost:8080.</div></div>
+    <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-label"><strong>Clientes corren bien</strong>Desde clients/: python run_clients.py manda logs de auth, payments y socket.</div></div>
+    <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-label"><strong>config.py tiene solo 3 tokens</strong>auth-service, payments-service y socket-service.</div></div>
+    <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-label"><strong>README actualizado</strong>No menciona api-gateway ni meme-ranker si ya los borraste.</div></div>
+    <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-label"><strong>GET /logs probado</strong>Probaste consultar sin filtros y con filtros de fecha.</div></div>
+    <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-label"><strong>Token inválido probado</strong>Debe devolver 401 con {"error":"Quién sos, bro?"}.</div></div>
+    <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-label"><strong>Sabés explicar timestamp vs received_at</strong>timestamp viene del cliente; received_at lo agrega el servidor.</div></div>
+    <div class="check-item"><div class="check-box" onclick="toggleCheck(this)"></div><div class="check-label"><strong>Sabés decir que no usás JWT</strong>Tu auth es con tokens estáticos, no con JWT firmado.</div></div>
+  </div>
+</section>
+</main>
+<footer>C5_The_Huddle — Guía personalizada para presentación // Python + Flask + SQLite</footer>
+<script>
+const questions = [
+  { cat: 'Conceptos', difficulty: 'easy', q: '¿Qué es un sistema de logging distribuido?', a: 'Es un sistema donde varios servicios independientes generan logs y los envían a un servidor central para guardarlos y consultarlos desde un solo lugar.' },
+  { cat: 'Conceptos', difficulty: 'easy', q: '¿Qué campos tiene cada log?', a: 'timestamp, service, severity y message. Además, el servidor agrega received_at cuando recibe el log.' },
+  { cat: 'Conceptos', difficulty: 'medium', q: '¿Cuál es la diferencia entre timestamp y received_at?', a: 'timestamp es cuándo ocurrió el evento según el servicio cliente. received_at es cuándo el servidor central recibió el log.' },
+  { cat: 'Conceptos', difficulty: 'medium', q: '¿Por qué centralizar logs?', a: 'Porque en sistemas con varios servicios es más fácil consultar, filtrar, auditar y debuggear todo desde un solo lugar.' },
+  { cat: 'Arquitectura', difficulty: 'easy', q: '¿Por qué separaste clients/ y server/?', a: 'Para mostrar la arquitectura cliente-servidor: los clientes generan logs y el servidor los recibe, valida, guarda y consulta.' },
+  { cat: 'Arquitectura', difficulty: 'medium', q: '¿Qué hace clients/base.py?', a: 'Tiene la lógica común de los servicios: generar logs, elegir severities, armar el JSON y enviar los logs por HTTP al servidor.' },
+  { cat: 'Arquitectura', difficulty: 'medium', q: '¿Qué hace run_clients.py?', a: 'Ejecuta los servicios simulados en orden y permite hacer un stress test mandando muchas rondas de logs.' },
+  { cat: 'Arquitectura', difficulty: 'medium', q: '¿Por qué usaste SQLite?', a: 'Porque es simple para una demo local, no requiere servidor externo y cumple con guardar los logs en una base de datos.' },
+  { cat: 'HTTP', difficulty: 'easy', q: '¿Para qué sirve POST /logs?', a: 'Sirve para recibir logs desde los servicios simulados. Puede recibir un solo log o una lista de logs.' },
+  { cat: 'HTTP', difficulty: 'easy', q: '¿Para qué sirve GET /logs?', a: 'Sirve para consultar los logs guardados en la base de datos.' },
+  { cat: 'HTTP', difficulty: 'medium', q: '¿Qué status devuelve token inválido?', a: 'Devuelve 401 Unauthorized con el mensaje {"error":"Quién sos, bro?"}.' },
+  { cat: 'HTTP', difficulty: 'medium', q: '¿Por qué POST y no GET para enviar logs?', a: 'Porque POST se usa para crear/enviar datos al servidor. GET se usa solo para consultar datos.' },
+  { cat: 'Autenticación', difficulty: 'easy', q: '¿Usás JWT?', a: 'No. Uso tokens estáticos en el header Authorization. Los mensajes que mencionan JWT son logs simulados del auth-service, no autenticación real con JWT.' },
+  { cat: 'Autenticación', difficulty: 'medium', q: '¿Cómo se manda el token?', a: 'En el header HTTP Authorization, por ejemplo: Authorization: Token svc-auth-penguin-001.' },
+  { cat: 'Autenticación', difficulty: 'medium', q: '¿Dónde están definidos los tokens válidos?', a: 'En server/config.py, dentro del diccionario VALID_TOKENS.' },
+  { cat: 'Validación', difficulty: 'easy', q: '¿Qué valida validators.py?', a: 'Valida el token y que el log tenga timestamp, service, severity y message. También valida que severity sea un valor permitido.' },
+  { cat: 'Validación', difficulty: 'medium', q: '¿Qué pasa si falta un campo?', a: 'El log se rechaza y el servidor devuelve un error indicando qué campo falta.' },
+  { cat: 'Validación', difficulty: 'medium', q: '¿Qué severities aceptás?', a: 'INFO, DEBUG, WARN, WARNING, ERROR y CRITICAL.' },
+  { cat: 'Base de datos', difficulty: 'easy', q: '¿Qué tabla se crea?', a: 'Una tabla logs con id, received_at, timestamp, service, severity y message.' },
+  { cat: 'Base de datos', difficulty: 'medium', q: '¿Por qué hay índices en timestamp y received_at?', a: 'Porque los filtros por fecha son comunes. Los índices ayudan a que las consultas por rango de fechas sean más rápidas.' },
+  { cat: 'Base de datos', difficulty: 'medium', q: '¿Cómo funcionan los filtros?', a: 'database.py revisa si vienen parámetros como timestamp_start o received_at_end y agrega condiciones dinámicas al WHERE del SQL.' },
+  { cat: 'Demo', difficulty: 'easy', q: '¿Cómo levantás el servidor?', a: 'Entrando a la carpeta server y ejecutando python server.py.' },
+  { cat: 'Demo', difficulty: 'easy', q: '¿Cómo corrés los clientes?', a: 'Entrando a la carpeta clients y ejecutando python run_clients.py.' },
+  { cat: 'Demo', difficulty: 'medium', q: '¿Cómo demostrarías que el sistema guarda logs?', a: 'Primero corro los clientes para enviar logs. Después hago un GET /logs con un token válido y muestro que aparecen en la respuesta.' },
+  { cat: 'Mejoras posibles', difficulty: 'hard', q: '¿Qué mejorarías si fuera producción?', a: 'Usaría variables de entorno para tokens, HTTPS, rate limiting, paginación, validación más estricta, una base como PostgreSQL y quizá una cola como Kafka o RabbitMQ.' }
+];
+function renderQuestions(){const c=document.getElementById('questions-container');const by={};questions.forEach((q,i)=>{if(!by[q.cat])by[q.cat]=[];by[q.cat].push({...q,idx:i});});let html='';let n=1;for(const [cat,qs] of Object.entries(by)){html+=`<div class="q-category">${cat}</div>`;qs.forEach(q=>{const label=q.difficulty==='easy'?'fácil':q.difficulty==='medium'?'medio':'difícil';html+=`<div class="q-item" onclick="toggleQ(this)"><div class="q-num">${String(n).padStart(2,'0')}</div><div style="flex:1"><div class="q-text">${q.q}</div><div class="q-answer">${q.a}</div></div><div class="q-difficulty ${q.difficulty}">${label}</div></div>`;n++;});}c.innerHTML=html;}
+function toggleQ(el){el.classList.toggle('open');}
+function toggleCheck(el){el.classList.toggle('checked');el.textContent=el.classList.contains('checked')?'✓':'';}
+const navLinks=document.querySelectorAll('nav a');const sections=document.querySelectorAll('section');window.addEventListener('scroll',()=>{let current='';sections.forEach(s=>{if(window.scrollY>=s.offsetTop-120)current=s.id;});navLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+current));});renderQuestions();
+</script>
+</body>
+</html>
